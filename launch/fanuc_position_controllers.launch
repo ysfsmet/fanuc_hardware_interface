@@ -1,0 +1,26 @@
+<launch>
+  <!-- GDB functionality -->
+  <arg name="debug" default="false" />
+  <arg unless="$(arg debug)" name="launch_prefix" value="" />
+  <arg if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
+  <arg name="rviz" default="true" />
+
+  <rosparam file="$(find fanuc_hardware_interface)/config/hardware.yaml" command="load" />
+  <rosparam file="$(find fanuc_hardware_interface)/config/controllers.yaml" command="load" />
+  <rosparam file="$(find fanuc_hardware_interface)/config/joint_limits.yaml" command="load" />
+
+  <node name="fanuc_hardware_interface" pkg="fanuc_hardware_interface"
+    type="fanuc_hardware_interface_node" output="screen" launch-prefix="$(arg launch_prefix)">
+    <!-- Control motion and compliance controller with one handle -->
+    <remap from="my_motion_control_handle/target_frame" to="target_frame" />
+    <remap from="my_cartesian_motion_controller/target_frame" to="target_frame" />
+    <remap from="my_cartesian_compliance_controller/target_frame" to="target_frame" />
+
+    <!-- Control wrenches via one topic -->
+    <remap from="my_cartesian_force_controller/target_wrench" to="target_wrench" />
+    <remap from="my_cartesian_force_controller/ft_sensor_wrench" to="wrench" />
+    <remap from="my_cartesian_compliance_controller/target_wrench" to="target_wrench" />
+    <remap from="my_cartesian_compliance_controller/ft_sensor_wrench" to="wrench" />
+
+  </node>
+</launch>
